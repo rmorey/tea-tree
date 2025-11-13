@@ -1,4 +1,4 @@
-# ttree 🍵-∂🌳
+# ttree 🍵-🌳
 
 ttree is an alternative to `tree` that keeps directory browsing
 readable, summarizing noisy folders, colorizing output, and optionally hiding dotfiles.
