@@ -14,14 +14,22 @@ readable, summarizing noisy folders, colorizing output, and optionally hiding do
 
 ## Installation
 
-Requires Python 3.11+. With [uv](https://github.com/astral-sh/uv) installed:
+Requires Python 3.11+.
+
+From PyPI:
 
 ```bash
-uv sync
+pip install tea-tree
 ```
 
-For a classic workflow, run `pip install -e .` from the repo root. After installation the
-`ttree` console script is available on your PATH.
+For local development, install via [uv](https://github.com/astral-sh/uv):
+
+```bash
+uv sync --extra dev
+```
+
+or use `pip install -e .[dev]`. After installation the `ttree` console script is available
+on your PATH.
 
 ## Usage
 
@@ -78,10 +86,18 @@ structure you can expect.
 
 - CLI implementation: `src/ttree/cli.py`; helpers live nearby. `main.py` is a lightweight
   wrapper for executing the app without installation.
-- Install dev deps with `uv sync --extra dev` or `pip install -e .[dev]`.
 - Run tests via `pytest`. Fixtures cover directory summaries, dotfile behavior, permission
   errors, and Typer command invocations.
 - Build distributables with `uv build`; the project uses the `uv_build` backend.
 
 Contributions are welcome—tune the thresholds or output styles in `src/ttree/cli.py` and
 update the tests to keep coverage high.
+
+## Publishing to PyPI
+
+1. Bump `version` in `pyproject.toml` and update the changelog/README as needed.
+2. Install dependencies (`uv sync --extra dev`) and run `pytest`.
+3. Build artifacts: `uv build` (creates `dist/tea_tree-<version>.whl` and `.tar.gz`).
+4. Publish with a PyPI token: `UV_PYPI_TOKEN=... uv publish --token "$UV_PYPI_TOKEN"`.
+
+The published distribution name is `tea-tree`, while the installed CLI remains `ttree`.

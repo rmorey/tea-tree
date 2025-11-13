@@ -22,6 +22,11 @@ from importlib import metadata as _metadata
 from pathlib import Path
 from typing import Iterable
 
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 fallback
+    tomllib = None  # type: ignore
+
 import typer
 from rich.console import Console
 from rich.theme import Theme
@@ -31,10 +36,21 @@ __all__ = ["app"]
 
 app = typer.Typer(add_completion=False)
 
+_DIST_NAME = "tea-tree"
+
 try:
-    __version__ = _metadata.version("ttree")
+    __version__ = _metadata.version(_DIST_NAME)
 except _metadata.PackageNotFoundError:  # pragma: no cover - local dev editable installs
-    __version__ = "0.0.0"
+    if tomllib is not None:
+        try:
+            project_root = Path(__file__).resolve().parents[2]
+            pyproject = project_root / "pyproject.toml"
+            data = tomllib.loads(pyproject.read_text())
+            __version__ = data["project"]["version"]
+        except Exception:
+            __version__ = "0.0.0"
+    else:
+        __version__ = "0.0.0"
 
 theme = Theme(
     {
