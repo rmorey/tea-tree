@@ -84,16 +84,37 @@ def get_file_type(filename: str) -> str:
 
 def summarize_types(files: Iterable[os.DirEntry]) -> str:
     """
-    Count types in files and produce a summary string like '4 py, 2 txt, 1 no extension files'
+    Count types in files and produce a summary string with markup.
+
+    - Unique extensions are listed by filename in `[file]` markup so they stay green.
+    - Shared extensions are grouped and wrapped in `[summary]` so they stay dim.
     """
-    types = [get_file_type(f.name) for f in files]
-    counts = Counter(types)
-    parts = []
+    file_entries = list(files)
+    if not file_entries:
+        return "[summary]0 files[/summary]"
+
+    file_infos = [(entry.name, get_file_type(entry.name)) for entry in file_entries]
+    file_infos.sort(key=lambda info: info[0])
+
+    counts = Counter(ftype for _, ftype in file_infos)
+
+    singletons = [
+        f"[file]{name}[/file]" for name, ftype in file_infos if counts[ftype] == 1
+    ]
+    grouped = []
     for ext, count in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+        if count == 1:
+            continue
         label = f"{ext}" if ext != "no extension" else "no extension"
-        parts.append(f"{count} {label}")
+        grouped.append(f"[summary]{count} {label}[/summary]")
+
+    parts = singletons + grouped
     noun = "file" if sum(counts.values()) == 1 else "files"
-    return f"{', '.join(parts)} {noun}"
+    noun_markup = f"[summary]{noun}[/summary]"
+    if not parts:
+        return noun_markup
+
+    return f"{', '.join(parts)} {noun_markup}"
 
 
 def update_status(status, root_label: str, stats: CrawlStats) -> None:
@@ -175,7 +196,7 @@ def build_tree(
             tree.add(f"[file]{f.name}[/file]")
     else:
         summary = summarize_types(files)
-        tree.add(f"[summary]{summary}[/summary]")
+        tree.add(summary)
 
 
 @app.command()

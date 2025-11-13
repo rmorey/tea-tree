@@ -31,14 +31,17 @@ def test_get_file_type_handles_extensions_and_missing() -> None:
     assert get_file_type("LICENSE") == "no extension"
 
 
-def test_summarize_types_orders_by_frequency_then_name() -> None:
+def test_summarize_types_lists_unique_types_before_group_counts() -> None:
     files = [
         SimpleNamespace(name="a.py"),
         SimpleNamespace(name="b.PY"),
         SimpleNamespace(name="c.txt"),
         SimpleNamespace(name="README"),
     ]
-    assert summarize_types(files) == "2 py, 1 no extension, 1 txt files"
+    assert (
+        summarize_types(files)
+        == "[file]README[/file], [file]c.txt[/file], [summary]2 py[/summary] [summary]files[/summary]"
+    )
 
 
 def test_build_tree_summarizes_directory_counts(tmp_path) -> None:
@@ -71,7 +74,23 @@ def test_build_tree_summarizes_files_when_limit_exceeded(tmp_path) -> None:
         show_all=True,
     )
 
-    assert _labels(tree) == ["2 py, 1 no extension files"]
+    assert _labels(tree) == ["README, 2 py files"]
+
+
+def test_summarize_types_includes_filenames_for_single_extension_groups() -> None:
+    entries = [
+        SimpleNamespace(name="report.log"),
+        SimpleNamespace(name="notes.md"),
+        SimpleNamespace(name="image.JPG"),
+        SimpleNamespace(name="script.sh"),
+    ]
+    expected = (
+        "[file]image.JPG[/file], "
+        "[file]notes.md[/file], "
+        "[file]report.log[/file], "
+        "[file]script.sh[/file] [summary]files[/summary]"
+    )
+    assert summarize_types(entries) == expected
 
 
 def test_build_tree_honors_show_all_flag(tmp_path) -> None:
