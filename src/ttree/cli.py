@@ -116,7 +116,7 @@ def build_tree(
             else:
                 entries = [e for e in it if not e.name.startswith(".")]
     except PermissionError:
-        tree.add("[error][permission denied][/error]")
+        tree.add("[error]permission denied[/error]")
         return
 
     dirs = [e for e in entries if e.is_dir(follow_symlinks=False)]
