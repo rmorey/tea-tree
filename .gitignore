@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.Python
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+.env
+.venv/
+env/
+venv/
+
+# Testing / coverage
+.pytest_cache/
+.coverage*
+coverage.xml
+htmlcov/
+
+# Type checker / linters
+.mypy_cache/
+.ruff_cache/
+pyrightconfig.json
+
+# IDE / editor
+.idea/
+.vscode/
+
+# OS / misc
+.DS_Store
+Thumbs.db
+
+# uv-specific
+.uv/
+
+# Local caches
+.cache/
