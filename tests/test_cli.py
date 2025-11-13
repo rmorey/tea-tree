@@ -9,7 +9,7 @@ from typer.testing import CliRunner
 
 import ttree.cli as cli_module
 from ttree import __version__
-from ttree.cli import app, build_tree, get_file_type, summarize_types
+from ttree.cli import app, build_tree, configure_console, get_file_type, summarize_types
 
 runner = CliRunner()
 
@@ -23,6 +23,38 @@ def _labels(tree: Tree) -> list[str]:
         else:
             labels.append(Text.from_markup(str(label)).plain)
     return labels
+
+
+def test_env_requests_no_color_handles_env(monkeypatch) -> None:
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    assert cli_module._env_requests_no_color() is False
+    monkeypatch.setenv("NO_COLOR", "1")
+    assert cli_module._env_requests_no_color() is True
+    monkeypatch.setenv("NO_COLOR", "0")
+    assert cli_module._env_requests_no_color() is False
+
+
+def test_configure_console_toggles_color() -> None:
+    configure_console(True)
+    assert cli_module.console.no_color is True
+    configure_console(False)
+    assert cli_module.console.no_color is False
+
+
+def test_cli_no_color_option_disables_colors() -> None:
+    result = runner.invoke(app, ["--no-color", "-V"])
+    assert result.exit_code == 0
+    assert cli_module.console.no_color is True
+    configure_console(False)
+
+
+def test_cli_respects_no_color_env(monkeypatch) -> None:
+    monkeypatch.setenv("NO_COLOR", "1")
+    result = runner.invoke(app, ["-V"])
+    assert result.exit_code == 0
+    assert cli_module.console.no_color is True
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    configure_console(False)
 
 
 def test_get_file_type_handles_extensions_and_missing() -> None:

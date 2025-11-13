@@ -1,4 +1,4 @@
-# ttree
+# ttree 🍵-🌳
 
 ttree is a Rich + Typer powered alternative to `tree` that keeps directory browsing
 readable, summarizing noisy folders, colorizing output, and optionally hiding dotfiles.
@@ -9,6 +9,7 @@ readable, summarizing noisy folders, colorizing output, and optionally hiding do
 - Crowded directories are collapsed: file clusters become summaries like `5 py, 3 md files`
   and subdirectories collapse to `N directories`.
 - Dotfiles stay hidden unless you opt in with `-a/--all`.
+- Need plain output for CI logs? pass `--no-color` or set `NO_COLOR=1`.
 - A live progress spinner appears when scanning large trees on a TTY.
 - `-V/--version` prints the installed version for quick diagnostics.
 
@@ -61,6 +62,7 @@ installing the entry point.
 - `-d, --max-dirs-to-list`: maximum subdirectories to list before using `N directories`.
   Set to `0` to only emit counts.
 - `-a, --all`: include entries starting with `.`.
+- `--no-color`: disable Rich colors (equivalent to exporting `NO_COLOR=1`).
 
 ## Example Output
 

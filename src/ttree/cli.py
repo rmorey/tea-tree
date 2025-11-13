@@ -60,7 +60,23 @@ theme = Theme(
         "error": "bold red",
     }
 )
-console = Console(theme=theme)
+
+
+def _env_requests_no_color() -> bool:
+    """Return True if the NO_COLOR environment variable disables color output."""
+    value = os.environ.get("NO_COLOR")
+    if value is None:
+        return False
+    return value not in ("", "0")
+
+
+console = Console(theme=theme, no_color=_env_requests_no_color())
+
+
+def configure_console(disable_color: bool) -> None:
+    """Reinitialize the global console with the requested color setting."""
+    global console
+    console = Console(theme=theme, no_color=disable_color)
 
 
 @dataclass
@@ -233,6 +249,11 @@ def main(
         "--all",
         help="Include dotfiles (files/dirs starting with '.') in the listing.",
     ),
+    no_color: bool = typer.Option(
+        False,
+        "--no-color",
+        help="Disable colored output (same as setting NO_COLOR=1).",
+    ),
     version: bool = typer.Option(
         False,
         "-V",
@@ -241,6 +262,9 @@ def main(
         is_eager=True,
     ),
 ) -> None:
+    disable_color = no_color or _env_requests_no_color()
+    configure_console(disable_color)
+
     if version:
         console.print(__version__)
         raise typer.Exit()
