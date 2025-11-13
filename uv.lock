@@ -119,8 +119,8 @@ wheels = [
 ]
 
 [[package]]
-name = "ttree"
-version = "0.1.0"
+name = "tea-tree"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "rich" },
