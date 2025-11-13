@@ -1,23 +1,28 @@
-# ttree 🍵-🌳
+# ttree 🍵-∂🌳
 
-ttree is a Rich + Typer powered alternative to `tree` that keeps directory browsing
+ttree is an alternative to `tree` that keeps directory browsing
 readable, summarizing noisy folders, colorizing output, and optionally hiding dotfiles.
 
 ## Features
 
-- Rich renders a hierarchical tree with coloring for directories, files, and summaries.
+- Renders a hierarchical tree with coloring for directories, files, and summaries.
 - Crowded directories are collapsed: file clusters become summaries like `5 py, 3 md files`
   and subdirectories collapse to `N directories`.
 - Dotfiles stay hidden unless you opt in with `-a/--all`.
 - Need plain output for CI logs? pass `--no-color` or set `NO_COLOR=1`.
 - A live progress spinner appears when scanning large trees on a TTY.
-- `-V/--version` prints the installed version for quick diagnostics.
 
 ## Installation
 
 Requires Python 3.11+.
 
-From PyPI:
+With uv:
+
+```bash
+uv tool install tea-tree
+```
+
+With pip:
 
 ```bash
 pip install tea-tree
@@ -84,22 +89,4 @@ demo
 The actual CLI uses color and dimmed summaries via Rich; the example above shows the
 structure you can expect.
 
-## Development
-
-- CLI implementation: `src/ttree/cli.py`; helpers live nearby. `main.py` is a lightweight
-  wrapper for executing the app without installation.
-- Run tests via `pytest`. Fixtures cover directory summaries, dotfile behavior, permission
-  errors, and Typer command invocations.
-- Build distributables with `uv build`; the project uses the `uv_build` backend.
-
-Contributions are welcome—tune the thresholds or output styles in `src/ttree/cli.py` and
-update the tests to keep coverage high.
-
-## Publishing to PyPI
-
-1. Bump `version` in `pyproject.toml` and update the changelog/README as needed.
-2. Install dependencies (`uv sync --extra dev`) and run `pytest`.
-3. Build artifacts: `uv build` (creates `dist/tea_tree-<version>.whl` and `.tar.gz`).
-4. Publish with a PyPI token: `UV_PYPI_TOKEN=... uv publish --token "$UV_PYPI_TOKEN"`.
-
-The published distribution name is `tea-tree`, while the installed CLI remains `ttree`.
+_WIP, mostly written by GPT-5-Codex_
