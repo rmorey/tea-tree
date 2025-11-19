@@ -1,6 +1,6 @@
 [project]
 name = "tea-tree"
-version = "0.1.4"
+version = "0.1.5"
 description = "A Rich + Typer powered tree viewer that summarizes directories when they get busy."
 readme = "README.md"
 requires-python = ">=3.11"

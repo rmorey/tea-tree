@@ -156,12 +156,21 @@ def build_tree(
     stats: CrawlStats | None = None,
     status=None,
     root_label: str | None = None,
+    seen: set[tuple[int, int]] | None = None,
 ) -> None:
     """
     Recursively build the tree for `path` into the given rich Tree node.
 
     If show_all is False, dotfiles (files or dirs starting with '.') are ignored.
     """
+    if seen is None:
+        seen = set()
+    try:
+        stat_result = os.stat(path, follow_symlinks=True)
+        seen.add((stat_result.st_ino, stat_result.st_dev))
+    except OSError:
+        pass
+
     try:
         with os.scandir(path) as it:
             if show_all:
@@ -172,8 +181,22 @@ def build_tree(
         tree.add("[error]permission denied[/error]")
         return
 
-    dirs = [e for e in entries if e.is_dir(follow_symlinks=False)]
-    files = [e for e in entries if e.is_file(follow_symlinks=False) or e.is_symlink()]
+    dirs: list[os.DirEntry] = []
+    files: list[os.DirEntry] = []
+
+    for entry in entries:
+        try:
+            if entry.is_dir(follow_symlinks=True):
+                dirs.append(entry)
+                continue
+        except OSError:
+            pass
+
+        try:
+            if entry.is_file(follow_symlinks=False) or entry.is_symlink():
+                files.append(entry)
+        except OSError:
+            files.append(entry)
 
     dirs.sort(key=lambda e: e.name)
     files.sort(key=lambda e: e.name)
@@ -188,7 +211,30 @@ def build_tree(
     if num_dirs:
         if num_dirs <= max_dirs_to_list:
             for d in dirs:
-                branch = tree.add(f"[dir]{d.name}[/dir]")
+                dir_label = f"[dir]{d.name}[/dir]"
+                if d.is_symlink():
+                    try:
+                        target = os.readlink(d.path)
+                        dir_label = f"{dir_label} -> {target}"
+                    except OSError:
+                        dir_label = f"{dir_label} -> [error]?[/error]"
+
+                branch = tree.add(dir_label)
+
+                inode: tuple[int, int] | None = None
+                try:
+                    stat_result = os.stat(d.path, follow_symlinks=True)
+                    inode = (stat_result.st_ino, stat_result.st_dev)
+                except OSError:
+                    pass
+
+                # Prevent infinite recursion when a directory is reachable via multiple paths.
+                if inode is not None and inode in seen:
+                    continue
+
+                if inode is not None:
+                    seen.add(inode)
+
                 build_tree(
                     Path(d.path),
                     branch,
@@ -198,6 +244,7 @@ def build_tree(
                     stats=stats,
                     status=status,
                     root_label=root_label,
+                    seen=seen,
                 )
         else:
             noun = "directory" if num_dirs == 1 else "directories"
