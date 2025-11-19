@@ -173,7 +173,7 @@ def build_tree(
         return
 
     dirs = [e for e in entries if e.is_dir(follow_symlinks=False)]
-    files = [e for e in entries if e.is_file(follow_symlinks=False)]
+    files = [e for e in entries if e.is_file(follow_symlinks=False) or e.is_symlink()]
 
     dirs.sort(key=lambda e: e.name)
     files.sort(key=lambda e: e.name)
@@ -209,7 +209,14 @@ def build_tree(
 
     if num_files <= max_files_to_list:
         for f in files:
-            tree.add(f"[file]{f.name}[/file]")
+            if f.is_symlink():
+                try:
+                    target = os.readlink(f.path)
+                    tree.add(f"[file]{f.name}[/file] -> {target}")
+                except OSError:
+                    tree.add(f"[file]{f.name}[/file] -> [error]?[/error]")
+            else:
+                tree.add(f"[file]{f.name}[/file]")
     else:
         summary = summarize_types(files)
         tree.add(summary)
